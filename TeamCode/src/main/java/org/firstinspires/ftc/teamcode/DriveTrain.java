@@ -13,13 +13,9 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
  * interface for class{@link DriveTrain_Interface}
  * This Class describes the driveTrain of the robot
  */
-
-
 public class DriveTrain implements DriveTrain_Interface {
     private ElapsedTime runtime = new ElapsedTime();
     enum Shape {BALL,CUBE}
-
-
     //Constants
     private final int ENCODERS = 1120;
     private final int DIAMETER = 10;
@@ -159,8 +155,6 @@ public class DriveTrain implements DriveTrain_Interface {
         rightMotor.setPower(0);
         resetPID();
     }
-
-
     /**************************************************************************************
      *Function name: driveRight
      *Input: a power value and a degree value
