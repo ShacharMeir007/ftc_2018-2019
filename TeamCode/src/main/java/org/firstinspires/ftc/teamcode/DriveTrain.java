@@ -20,7 +20,7 @@ public class DriveTrain implements DriveTrain_Interface {
     private final int ENCODERS = 1120;
     private final int DIAMETER = 10;
     private final double ENCODERS_PER_CM = ENCODERS /(DIAMETER*Math.PI);
-    private final double ENCODERS_PER_DEGREES = 50; //TEMPORARY
+    private final double ENCODERS_PER_DEGREE = 50; //TEMPORARY
 
     //Motors Objects
     DcMotor leftMotor = null;
@@ -162,7 +162,7 @@ public class DriveTrain implements DriveTrain_Interface {
      *Operation: turn to the right in the given power the given amount of degrees
      ***************************************************************************************/
     public void driveRight(double power, int degrees) {
-        int target =(int) Math.floor (degrees * ENCODERS_PER_DEGREES);
+        int target =(int) Math.floor (degrees * ENCODERS_PER_DEGREE);
         leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftMotor.setTargetPosition(target);
@@ -183,11 +183,11 @@ public class DriveTrain implements DriveTrain_Interface {
      *Operation: turn to the left in the given power the given amount of degrees
      ***************************************************************************************/
     public void driveLeft(double power, int degrees) {
-        int target =(int) Math.floor (degrees * ENCODERS_PER_DEGREES);
+        int target =(int) Math.floor (degrees * ENCODERS_PER_DEGREE);
         leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftMotor.setTargetPosition(target);
-        rightMotor.setTargetPosition(target);
+        leftMotor.setTargetPosition(-target);
+        rightMotor.setTargetPosition(-target);
         leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         while (leftMotor.isBusy()&& rightMotor.isBusy ()){
@@ -196,13 +196,6 @@ public class DriveTrain implements DriveTrain_Interface {
         }
         leftMotor.setPower(0);
         rightMotor.setPower(0);
-
-
-
-
-
-
-
 }
 
     /**
