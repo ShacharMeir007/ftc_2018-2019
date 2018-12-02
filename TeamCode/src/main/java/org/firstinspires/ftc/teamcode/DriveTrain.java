@@ -58,7 +58,6 @@ public class DriveTrain implements DriveTrain_Interface {
         rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
     }
-    private void t(){}
     /**************************************************************************************
      *Function name: driveForward
      *Input: a power value and a distance value
