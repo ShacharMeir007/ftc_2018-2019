@@ -20,7 +20,7 @@ public class DriveTrain implements DriveTrain_Interface {
     private final int ENCODERS = 1120;
     private final int DIAMETER = 10;
     private final double ENCODERS_PER_CM = ENCODERS /(DIAMETER*Math.PI);
-    private final double ENCODERS_PER_DEGREE = 50; //TEMPORARY
+    private final double ENCODERS_PER_DEGREE = 11.55;
 
     //Motors Objects
     DcMotor leftMotor = null;
@@ -32,8 +32,8 @@ public class DriveTrain implements DriveTrain_Interface {
     private static int p2=0;
     private static double i=0;
     private static double d=0;
-    int leftEncorders = 0;
-    int rightEncoders=0;
+    private int deltaLeftEncorders = 0;
+    private int deltaRightEncoders =0;
 
     public void DriveTrain(){}
     /**************************************************************************************
@@ -58,12 +58,12 @@ public class DriveTrain implements DriveTrain_Interface {
         rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
     }
-    /**************************************************************************************
-     *Function name: driveForward
-     *Input: a power value and a distance value
-     *Output: void
-     *Operation: drive in the given power the distance given
-     ***************************************************************************************/
+     /***************************************************************************************
+     *Function name: driveForward                                                           *
+     *Input: a power value and a distance value                                             *
+     *Output: nothing                                                                       *
+     *Operation: drive in the given power the distance given                                *
+     ****************************************************************************************/
     public void driveForward(int cm, double power) {
         int target =(int) Math.floor (cm * ENCODERS_PER_CM);
         leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -88,16 +88,16 @@ public class DriveTrain implements DriveTrain_Interface {
      *Operation: measures errors of the encoders values and returns a power
      * value accordingly
      ***************************************************************************************/
-    private final double kP =0.001;
-    private final double kI =0.001;
-    private final double kD=0.005;
+    private final double kP =0.003;
+    private final double kI =0.000;
+    private final double kD=0.000;
     private double PID_SpeedCalculator(double targetPower) {
         if (leftMotor.isBusy()&& rightMotor.isBusy ()) {
             double result;
-            leftEncorders= leftMotor.getCurrentPosition()-leftEncorders;
-            rightEncoders= Math.abs(rightMotor.getCurrentPosition())- rightEncoders;
+            deltaLeftEncorders= leftMotor.getCurrentPosition()-deltaLeftEncorders;
+            deltaRightEncoders = -rightMotor.getCurrentPosition()- deltaRightEncoders;
             p2 =p1;
-            p1 = (rightEncoders) - (leftEncorders);
+            p1 = (deltaRightEncoders) - (deltaLeftEncorders);
             if (Math.abs(leftMotor.getPower())<0.9) {
                 i += p1;
             }
@@ -127,8 +127,8 @@ public class DriveTrain implements DriveTrain_Interface {
         p2=0;
         i=0;
         d=0;
-        leftEncorders = 0;
-        rightEncoders=0;
+        deltaLeftEncorders = 0;
+        deltaRightEncoders =0;
     }
     /**************************************************************************************
      *Function name: driveForward_PID
@@ -171,6 +171,7 @@ public class DriveTrain implements DriveTrain_Interface {
         while (leftMotor.isBusy()&& rightMotor.isBusy ()){
             leftMotor.setPower(power);
             rightMotor.setPower(power);
+            resetPID();
         }
         leftMotor.setPower(0);
         rightMotor.setPower(0);
@@ -195,6 +196,7 @@ public class DriveTrain implements DriveTrain_Interface {
         }
         leftMotor.setPower(0);
         rightMotor.setPower(0);
+        resetPID();
 }
 
     /**

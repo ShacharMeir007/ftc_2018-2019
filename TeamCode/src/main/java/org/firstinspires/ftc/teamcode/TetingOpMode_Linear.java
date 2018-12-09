@@ -60,14 +60,22 @@ public class TetingOpMode_Linear extends OpModeRobot_Linear {
     public void runOpMode() {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
-
         // Initialize the hardware variables.
         Shachar.init(hardwareMap);
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
-
-
-        Shachar.driveTrain.driveForward_PID(100, 0.3);
+        Shachar.driveTrain.driveForward_PID(45, 0.3);
+        telemetry.addData("leftMotor", Shachar.driveTrain.leftMotor.getCurrentPosition());
+        telemetry.addData("rightMotor", Shachar.driveTrain.rightMotor.getCurrentPosition());
+        telemetry.update();
+        Shachar.driveTrain.driveRight(0.3,90);
+        telemetry.addData("leftMotor", Shachar.driveTrain.leftMotor.getCurrentPosition());
+        telemetry.addData("rightMotor", Shachar.driveTrain.rightMotor.getCurrentPosition());
+        telemetry.update();
+        Shachar.driveTrain.driveForward_PID(-45, -0.3);
+        telemetry.addData("leftMotor", Shachar.driveTrain.leftMotor.getCurrentPosition());
+        telemetry.addData("rightMotor", Shachar.driveTrain.rightMotor.getCurrentPosition());
+        telemetry.update();
         telemetry.addData("status:", "FTC");
         telemetry.update();
         runtime.reset();
