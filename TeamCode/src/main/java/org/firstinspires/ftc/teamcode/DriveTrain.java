@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -20,20 +21,22 @@ public class DriveTrain implements DriveTrain_Interface {
     private final int ENCODERS = 1120;
     private final int DIAMETER = 10;
     private final double ENCODERS_PER_CM = ENCODERS /(DIAMETER*Math.PI);
-    private final double ENCODERS_PER_DEGREE = 11.55;
+    private final double ENCODERS_PER_DEGREE = 11.5;
 
     //Motors Objects
-    DcMotor leftMotor = null;
-    DcMotor rightMotor = null;
+    DcMotor leftMotor = null;//port 0 MOTOR
+    DcMotor rightMotor = null;//port 1 MOTOR
+    Servo lightServo =null;//port 0 SERVO
     // sensor objects
-    ColorSensor colorSensor = null;
+    ColorSensor colorSensor = null;//port 1 I2C
     //PID variables
     private static int p1=0;
     private static int p2=0;
     private static double i=0;
     private static double d=0;
-    private int deltaLeftEncorders = 0;
+    private int deltaLeftEncoders = 0;
     private int deltaRightEncoders =0;
+
 
     public void DriveTrain(){}
     /**************************************************************************************
@@ -47,7 +50,7 @@ public class DriveTrain implements DriveTrain_Interface {
         leftMotor = hwm.get(DcMotor.class, "leftMotor");
         rightMotor = hwm.get(DcMotor.class, "rightMotor");
         colorSensor = hwm.get(ColorSensor.class, "colorSensor");
-
+        lightServo = hwm.get(Servo.class,"lightServo");
         leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
@@ -56,6 +59,7 @@ public class DriveTrain implements DriveTrain_Interface {
 
         leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        lightServo.setPosition(1);
 
     }
      /***************************************************************************************
@@ -90,14 +94,14 @@ public class DriveTrain implements DriveTrain_Interface {
      ***************************************************************************************/
     private final double kP =0.003;
     private final double kI =0.000;
-    private final double kD=0.000;
+    private final double kD=0.001;
     private double PID_SpeedCalculator(double targetPower) {
         if (leftMotor.isBusy()&& rightMotor.isBusy ()) {
             double result;
-            deltaLeftEncorders= leftMotor.getCurrentPosition()-deltaLeftEncorders;
+            deltaLeftEncoders = leftMotor.getCurrentPosition()- deltaLeftEncoders;
             deltaRightEncoders = -rightMotor.getCurrentPosition()- deltaRightEncoders;
             p2 =p1;
-            p1 = (deltaRightEncoders) - (deltaLeftEncorders);
+            p1 = (deltaRightEncoders) - (deltaLeftEncoders);
             if (Math.abs(leftMotor.getPower())<0.9) {
                 i += p1;
             }
@@ -127,7 +131,7 @@ public class DriveTrain implements DriveTrain_Interface {
         p2=0;
         i=0;
         d=0;
-        deltaLeftEncorders = 0;
+        deltaLeftEncoders = 0;
         deltaRightEncoders =0;
     }
     /**************************************************************************************
@@ -154,6 +158,7 @@ public class DriveTrain implements DriveTrain_Interface {
         rightMotor.setPower(0);
         resetPID();
     }
+
     /**************************************************************************************
      *Function name: driveRight
      *Input: a power value and a degree value
@@ -191,7 +196,7 @@ public class DriveTrain implements DriveTrain_Interface {
         leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         while (leftMotor.isBusy()&& rightMotor.isBusy ()){
-            leftMotor.setPower(-power);
+            leftMotor.setPower(power);
             rightMotor.setPower(-power);
         }
         leftMotor.setPower(0);
@@ -205,7 +210,8 @@ public class DriveTrain implements DriveTrain_Interface {
      * @param telemetry the telemetry of the op Mode.
      * @return the shape detected.
      */
-    Shape ShapeCheck(Telemetry telemetry){
+    Shape ShapeCheck(Telemetry telemetry,ElapsedTime runtime){
+        Shape shape =Shape.BALL;
         colorSensor.enableLed(true);
         telemetry.addData("color value: ", colorSensor.argb());
         telemetry.addData("red: ",colorSensor.red());
@@ -213,17 +219,19 @@ public class DriveTrain implements DriveTrain_Interface {
         telemetry.addData("blue: ",colorSensor.blue());
         telemetry.addData("alpha: ",colorSensor.alpha());
         telemetry.addData("argb: ",colorSensor.argb());
+        runtime.reset();
+        while (runtime.seconds()<1)
         if((double)colorSensor.blue()/colorSensor.red()<0.4){
             telemetry.addData("shape: ","Cube");
             telemetry.update();
-            return Shape.CUBE;
+            shape= Shape.CUBE;
         }
         else {
             telemetry.addData("shape: ","Ball");
             telemetry.update();
-            return Shape.BALL;
+            shape=Shape.BALL;
         }
-
+        return shape;
     }
 
 

@@ -29,6 +29,7 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -46,7 +47,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name="Op Mode for testing", group="Linear Opmode")
+@Autonomous(name="Op Mode for testing", group="Linear Opmode")
 //@Disabled
 
 public class TetingOpMode_Linear extends OpModeRobot_Linear {
@@ -54,7 +55,8 @@ public class TetingOpMode_Linear extends OpModeRobot_Linear {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
-
+    private int cm =124;
+    private int cmJump =42;
 
     @Override
     public void runOpMode() {
@@ -64,29 +66,42 @@ public class TetingOpMode_Linear extends OpModeRobot_Linear {
         Shachar.init(hardwareMap);
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
-        Shachar.driveTrain.driveForward_PID(45, 0.3);
-        telemetry.addData("leftMotor", Shachar.driveTrain.leftMotor.getCurrentPosition());
-        telemetry.addData("rightMotor", Shachar.driveTrain.rightMotor.getCurrentPosition());
-        telemetry.update();
-        Shachar.driveTrain.driveRight(0.3,90);
-        telemetry.addData("leftMotor", Shachar.driveTrain.leftMotor.getCurrentPosition());
-        telemetry.addData("rightMotor", Shachar.driveTrain.rightMotor.getCurrentPosition());
-        telemetry.update();
-        Shachar.driveTrain.driveForward_PID(-45, -0.3);
-        telemetry.addData("leftMotor", Shachar.driveTrain.leftMotor.getCurrentPosition());
-        telemetry.addData("rightMotor", Shachar.driveTrain.rightMotor.getCurrentPosition());
-        telemetry.update();
-        telemetry.addData("status:", "FTC");
+        Shachar.driveTrain.driveForward_PID(37, 0.3);
+        Shachar.driveTrain.driveLeft(0.1,90);
+        Shachar.driveTrain.driveForward_PID(-32, -0.3);
+        for (int i = 1; i <=2 ; i++) {
+
+            /*arm down*/Shachar.driveTrain.lightServo.setPosition(0.0);
+
+                sleep(100);
+                shape = Shachar.driveTrain.ShapeCheck(telemetry,runtime);
+
+            if (shape== DriveTrain.Shape.CUBE){
+                break;
+            }
+            else {
+                sleep(1000);
+                /*arm up*/
+                Shachar.driveTrain.lightServo.setPosition(1);
+                cm -= cmJump;
+                Shachar.driveTrain.driveForward(cmJump, 0.3);
+            }
+        }
+        Shachar.driveTrain.lightServo.setPosition(0.0);
+        Shachar.driveTrain.driveForward_PID(20,0.3);
+        Shachar.driveTrain.lightServo.setPosition(1);
+        Shachar.driveTrain.driveForward_PID(cm-20,0.3);
+
         telemetry.update();
         runtime.reset();
         /*here you write the autonomous program*/
-        shape = Shachar.driveTrain.ShapeCheck(telemetry);
+        shape = Shachar.driveTrain.ShapeCheck(telemetry,runtime);
         switch (shape){
             case BALL:
-
                 print("shape: ","ball");
                 break;
             case CUBE:
+                Shachar.driveTrain.driveForward_PID(20,0.3);
                 print("shape: ","cube");
                 break;
             default:
@@ -101,6 +116,7 @@ public class TetingOpMode_Linear extends OpModeRobot_Linear {
 
 
             //print on the app screen.
+            telemetry.addData("shape:",shape);
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.update();
         }
