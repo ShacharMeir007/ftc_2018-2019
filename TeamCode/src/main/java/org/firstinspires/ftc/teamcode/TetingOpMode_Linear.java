@@ -30,7 +30,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
@@ -56,25 +55,30 @@ public class TetingOpMode_Linear extends OpModeRobot_Linear {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
     private int cm =124;
-    private int cmJump =42;
+    private int cmJump =35;
 
     @Override
     public void runOpMode() {
+        sleep(56);
         telemetry.addData("Status", "Initialized");
         telemetry.update();
         // Initialize the hardware variables.
         Shachar.init(hardwareMap);
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
-        Shachar.driveTrain.driveForward_PID(37, 0.3);
-        Shachar.driveTrain.driveLeft(0.1,90);
-        Shachar.driveTrain.driveForward_PID(-32, -0.3);
+        /*here you write the autonomous program*/
+        /*segment 1*/
+        Shachar.driveTrain.driveForward_PID(39, 0.3);
+        Shachar.driveTrain.turnRight_ENCODERS(0.17,85);
+        Shachar.driveTrain.driveForward_PID( -36.5, -0.3);
+
+        /*segment 2*/
         for (int i = 1; i <=2 ; i++) {
 
-            /*arm down*/Shachar.driveTrain.lightServo.setPosition(0.0);
+            Shachar.driveTrain.lightSensorDown();
 
-                sleep(100);
-                shape = Shachar.driveTrain.ShapeCheck(telemetry,runtime);
+            sleep(100);
+            shape = Shachar.driveTrain.ShapeCheck(telemetry,runtime);
 
             if (shape== DriveTrain.Shape.CUBE){
                 break;
@@ -82,31 +86,25 @@ public class TetingOpMode_Linear extends OpModeRobot_Linear {
             else {
                 sleep(1000);
                 /*arm up*/
-                Shachar.driveTrain.lightServo.setPosition(1);
+                Shachar.driveTrain.lightServo.setPosition(0.75);
                 cm -= cmJump;
                 Shachar.driveTrain.driveForward(cmJump, 0.3);
             }
         }
         Shachar.driveTrain.lightServo.setPosition(0.0);
-        Shachar.driveTrain.driveForward_PID(20,0.3);
-        Shachar.driveTrain.lightServo.setPosition(1);
-        Shachar.driveTrain.driveForward_PID(cm-20,0.3);
+        sleep(200);
+        Shachar.driveTrain.driveForward_PID(16,0.45);
+        Shachar.driveTrain.lightServo.setPosition(0.75);
 
+
+
+        /*segment 3*//*
+        Shachar.driveTrain.turnRight_ENCODERS(0.2,115);
+        Shachar.driveTrain.driveForward_PID(60,0.8);
+        Shachar.driveTrain.turnRight_ENCODERS(0.2,30);
+        Shachar.driveTrain.driveForward_PID(60,0.5);*/
         telemetry.update();
         runtime.reset();
-        /*here you write the autonomous program*/
-        shape = Shachar.driveTrain.ShapeCheck(telemetry,runtime);
-        switch (shape){
-            case BALL:
-                print("shape: ","ball");
-                break;
-            case CUBE:
-                Shachar.driveTrain.driveForward_PID(20,0.3);
-                print("shape: ","cube");
-                break;
-            default:
-                break;
-        }
 
 
         // run until the end of the match (driver presses STOP)
